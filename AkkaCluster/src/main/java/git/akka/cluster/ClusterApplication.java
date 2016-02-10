@@ -26,7 +26,7 @@ public class ClusterApplication {
 				withFallback(ConfigFactory.parseString("akka.cluster.roles = [" + role + "]")).
 				withFallback(ConfigFactory.load());
 
-		ActorSystem system = ActorSystem.create("TastetsReactiveCluster", config);
+		ActorSystem system = ActorSystem.create("ClusterSystem", config);
 
 		system.actorOf(Props.create(ClusterBackActor.class),role);
 	}
@@ -37,7 +37,7 @@ public class ClusterApplication {
 				withFallback(ConfigFactory.parseString("akka.cluster.roles = [" + role + "]")).
 				withFallback(ConfigFactory.load());
 
-		ActorSystem system = ActorSystem.create("TastetsReactiveCluster", config);
+		ActorSystem system = ActorSystem.create("ClusterSystem", config);
 
 		system.actorOf(Props.create(FrontActor.class), role);
 	}

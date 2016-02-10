@@ -32,7 +32,7 @@ public class ClusterClientApplication {
 				withFallback(ConfigFactory.parseString("akka.cluster.roles = [front]")).
 				withFallback(ConfigFactory.load());
 
-		ActorSystem system = ActorSystem.create("TastetsReactiveCluster", config);
+		ActorSystem system = ActorSystem.create("ClusterSystem", config);
 
 		final ActorRef clusterClient = system.actorOf(ClusterClient.props(
 				ClusterClientSettings.create(system).withInitialContacts(initialContacts())),
@@ -58,7 +58,7 @@ public class ClusterClientApplication {
 
 	static Set<ActorPath> initialContacts() {
 		return new HashSet<ActorPath>(Arrays.asList(
-				ActorPaths.fromString("akka.tcp://TastetsReactiveCluster@127.0.0.1:2551/system/receptionist"),
-				ActorPaths.fromString("akka.tcp://TastetsReactiveCluster@127.0.0.1:2552/system/receptionist")));
+				ActorPaths.fromString("akka.tcp://ClusterSystem@127.0.0.1:2551/system/receptionist"),
+				ActorPaths.fromString("akka.tcp://ClusterSystem@127.0.0.1:2552/system/receptionist")));
 	}
 }
