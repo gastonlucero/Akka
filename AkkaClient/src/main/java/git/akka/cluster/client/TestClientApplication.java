@@ -29,16 +29,19 @@ public class TestClientApplication {
 	public static void main(String[] args) throws Exception {
 		Config config = ConfigFactory.parseString(
 				"akka.remote.netty.tcp.port=0").
-//				withFallback(ConfigFactory.parseString("akka.cluster.roles = [frontend]")).
 				withFallback(ConfigFactory.load("application.conf"));
 
-		ActorSystem system = ActorSystem.create("ClusterSystem", config);
+		ActorSystem system = ActorSystem.create("ClientSystem", config);
 
+		//Configuramos el cliente del cluster, indicandole las direcciones de donde estan los recepcionistas del cluster		
+		Set<ActorPath> initialContacts = new HashSet<>();
+		for (String contactAddress : config.getStringList("contact-points")) {
+			initialContacts.add(ActorPaths.fromString(contactAddress + "/system/receptionist"));
+		}
 		final ActorRef clusterClient = system.actorOf(
-				ClusterClient.props(ClusterClientSettings.create(system).withInitialContacts(initialContacts())),
-				"client");
+				ClusterClient.props(ClusterClientSettings.create(system).withInitialContacts(initialContacts)), "client");
 
-		ActorRef client = system.actorOf(Props.create(TestClient.class, clusterClient, "serviceFrontEnd"), "testclient");
+		ActorRef client = system.actorOf(Props.create(TestClient.class, clusterClient, "serviceFrontEnd"));
 
 		final FiniteDuration interval = Duration.create(5, TimeUnit.SECONDS);
 		final Timeout timeout = new Timeout(Duration.create(5, TimeUnit.SECONDS));
@@ -55,10 +58,4 @@ public class TestClientApplication {
 
 	}
 
-	static Set<ActorPath> initialContacts() {
-		return new HashSet<>(Arrays.asList(
-				ActorPaths.fromString("akka.tcp://ClusterSystem@127.0.0.1:2551/system/receptionist"),
-				ActorPaths.fromString("akka.tcp://ClusterSystem@127.0.0.1:2552/system/receptionist")
-				));
-	}
 }
