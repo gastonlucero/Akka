@@ -12,33 +12,43 @@ import com.typesafe.config.ConfigFactory;
 public class ClusterApplication {
 
 	public static void main(String[] args) throws Exception {
-		startBackEndNode(2551, "back");
+		startBackEndNode(2551, "backend");
 		Thread.sleep(10000);
-		startBackEndNode(2552, "back");
+		startBackEndNode(2552, "backend");
 		Thread.sleep(10000);
-		startFrontEndNode(0, "front");
-
+		startFrontEndNode(0, "frontend");
+		
 	}
 
+	/**
+	 * Levanta nodos backend en el cluster
+	 *
+	 * @param port Puerto en que inicia el nodo
+	 * @param role Rol del actor
+	 */
 	private static void startBackEndNode(int port, String role) {
 		Config config = ConfigFactory.parseString(
 				"akka.remote.netty.tcp.port=" + port).
 				withFallback(ConfigFactory.parseString("akka.cluster.roles = [" + role + "]")).
-				withFallback(ConfigFactory.load());
+				withFallback(ConfigFactory.load("backend.conf"));
 
 		ActorSystem system = ActorSystem.create("ClusterSystem", config);
-
-		system.actorOf(Props.create(ClusterBackActor.class),role);
+		system.actorOf(Props.create(ClusterBackendActor.class, "frontend"), role);
 	}
 
+	/**
+	 * Levanta nodos frontend en el cluster, que son lo que son visibles a las aplicaciones externas
+	 *
+	 * @param port Puerto en que inicia el backend
+	 * @param role Rol del actor
+	 */
 	private static void startFrontEndNode(int port, String role) {
 		Config config = ConfigFactory.parseString(
 				"akka.remote.netty.tcp.port=" + port).
 				withFallback(ConfigFactory.parseString("akka.cluster.roles = [" + role + "]")).
-				withFallback(ConfigFactory.load());
+				withFallback(ConfigFactory.load("frontend.conf"));
 
 		ActorSystem system = ActorSystem.create("ClusterSystem", config);
-
-		system.actorOf(Props.create(FrontActor.class), role);
+		system.actorOf(Props.create(ClusterFrontendActor.class), "serviceFrontEnd");
 	}
 }
