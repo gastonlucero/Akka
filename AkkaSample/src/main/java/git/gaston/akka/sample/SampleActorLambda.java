@@ -3,13 +3,11 @@ package git.gaston.akka.sample;
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
-import akka.event.Logging;
-import akka.event.LoggingAdapter;
 import akka.japi.pf.ReceiveBuilder;
-import scala.PartialFunction;
-import scala.runtime.BoxedUnit;
 
 /**
+ * Actor com lambdas, que recibe los mensajes que se le envian desde la clase main y los reenvia al logActor, que es
+ * creado en el constructor del mismo
  *
  * @author gaston
  */

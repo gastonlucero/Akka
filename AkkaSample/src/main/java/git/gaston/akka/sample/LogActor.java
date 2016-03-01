@@ -5,6 +5,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 
 /**
+ * Este actor simplemente logea los mensajes que le llegan
  *
  * @author gaston
  */
@@ -14,7 +15,7 @@ public class LogActor extends UntypedActor {
 
 	@Override
 	public void onReceive(Object message) throws Exception {
-		log.info("Mensaje {} desde {}", message, getSender().path());		
+		log.info("Mensaje {} desde {}", message, getSender().path());
 	}
 
 }
