@@ -1,6 +1,7 @@
 package git.akka.cluster;
 
 import akka.actor.ActorRef;
+import akka.actor.Props;
 import git.akka.cluster.messages.ClusterRegistryMessage;
 import akka.actor.UntypedActor;
 import akka.cluster.Cluster;
@@ -11,6 +12,7 @@ import akka.cluster.client.ClusterClientReceptionist;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import git.akka.cluster.messages.ClusterTestMessage;
+import git.akka.cluster.persistence.MongoAkkaActor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,17 +40,19 @@ public class ClusterBackendActor extends UntypedActor {
 	 */
 	@Override
 	public void preStart() {
-		cluster.subscribe(getSelf(), ClusterEvent.initialStateAsEvents(), MemberUp.class);	
+		cluster.subscribe(getSelf(), ClusterEvent.initialStateAsEvents(), MemberUp.class);
 		ClusterClientReceptionist.get(getContext().system()).registerService(getSelf());
 	}
 
 	private List<Member> members;
 
 	private String frontEndRole;
+	ActorRef mongo;
 
 	public ClusterBackendActor(String frontEndRole) {
 		members = Collections.synchronizedList(new ArrayList<>());
 		this.frontEndRole = frontEndRole;
+		mongo = getContext().actorOf(Props.create(MongoAkkaActor.class));
 	}
 
 	@Override
@@ -64,8 +68,12 @@ public class ClusterBackendActor extends UntypedActor {
 			registerMember(mUp.member());
 		} else if (message instanceof ClusterTestMessage) {
 			log.info("\n Mensaje recibido " + message + " {}", getSender().path());
+			mongo.tell("dale", getSelf());
 			((ClusterTestMessage) message).getOriginalSender().tell(200, ActorRef.noSender());
-		} else {
+		}else if(message instanceof String){
+			log.info("\n Mensaje recibido " + message + " {}", getSender().path());
+		} 
+		else {
 			unhandled(message);
 		}
 	}
@@ -80,7 +88,7 @@ public class ClusterBackendActor extends UntypedActor {
 	private void registerMember(Member memberUp) {
 		if (memberUp.hasRole(frontEndRole)) {
 			members.add(memberUp);
-			getContext().actorSelection(memberUp.address() + "/user/serviceFrontEnd" ).tell(
+			getContext().actorSelection(memberUp.address() + "/user/serviceFrontEnd").tell(
 					new ClusterRegistryMessage(), getSelf());
 		}
 	}

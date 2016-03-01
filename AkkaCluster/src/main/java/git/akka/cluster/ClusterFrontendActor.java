@@ -22,8 +22,12 @@ public class ClusterFrontendActor extends UntypedActor {
 	List<ActorRef> nodes = new ArrayList<>();
 	int calls = 0;
 
-	public ClusterFrontendActor() {
+	@Override
+	public void preStart() {
+
 		ClusterClientReceptionist.get(getContext().system()).registerService(getSelf());
+	}
+	public ClusterFrontendActor() {
 	}
 
 	@Override

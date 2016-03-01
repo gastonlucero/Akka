@@ -19,6 +19,7 @@ import scala.concurrent.ExecutionContext;
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
 import static akka.pattern.Patterns.ask;
+import cl.gps.drivers.objects.DeviceEvent;
 
 /**
  *
@@ -41,13 +42,13 @@ public class TestClientApplication {
 		final ActorRef clusterClient = system.actorOf(
 				ClusterClient.props(ClusterClientSettings.create(system).withInitialContacts(initialContacts)), "client");
 
-		ActorRef client = system.actorOf(Props.create(TestClient.class, clusterClient, "serviceFrontEnd"));
+		ActorRef client = system.actorOf(Props.create(TestClient.class, clusterClient, "receptionist"));
 
-		final FiniteDuration interval = Duration.create(5, TimeUnit.SECONDS);
-		final Timeout timeout = new Timeout(Duration.create(5, TimeUnit.SECONDS));
+		final FiniteDuration interval = Duration.create(10, TimeUnit.SECONDS);
+		final Timeout timeout = new Timeout(Duration.create(20, TimeUnit.SECONDS));
 		final ExecutionContext ec = system.dispatcher();
 		system.scheduler().schedule(interval, interval, () -> {
-			ask(client, "Simulamos un mensaje",
+			ask(client, getDeviceEvent(),
 					timeout).onSuccess(new OnSuccess<Object>() {
 						@Override
 						public void onSuccess(Object result) {
@@ -56,6 +57,13 @@ public class TestClientApplication {
 					}, ec);
 		}, ec);
 
+	}
+	
+	private static DeviceEvent getDeviceEvent(){
+		DeviceEvent de=new DeviceEvent();
+		de.setLatitude(Math.random());
+		de.setLongitude(Math.random());
+		return de;
 	}
 
 }

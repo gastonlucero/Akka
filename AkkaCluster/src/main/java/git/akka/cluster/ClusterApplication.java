@@ -10,13 +10,13 @@ import com.typesafe.config.ConfigFactory;
  * @author gaston
  */
 public class ClusterApplication {
-
+	
 	public static void main(String[] args) throws Exception {
-		startBackEndNode(2551, "backend");
-		Thread.sleep(10000);
-		startBackEndNode(2552, "backend");
-		Thread.sleep(10000);
-		startFrontEndNode(0, "frontend");
+		startBackEndNode(Integer.valueOf(args[0]), "backend");
+//		Thread.sleep(10000);
+//		startBackEndNode(2552, "backend");
+//		Thread.sleep(10000);
+//		startFrontEndNode(0, "frontend");
 		
 	}
 

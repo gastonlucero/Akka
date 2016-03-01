@@ -3,7 +3,7 @@ package git.akka.cluster.client;
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
 import akka.cluster.client.ClusterClient;
-import git.akka.cluster.messages.ClusterTestMessage;
+import cl.gps.drivers.objects.DeviceEvent;
 
 /**
  * Esta clase representa el actor que trabaja como cliente, encargado de mandar peticiones a los servicios dentro del
@@ -30,9 +30,11 @@ public class TestClient extends UntypedActor {
 
 	@Override
 	public void onReceive(Object msg) throws Exception {
-		if (msg instanceof String) {
+		if (msg instanceof DeviceEvent) {
+			((DeviceEvent)msg).put("sender",getSelf());
 			//Mensaje simulado que va hacia el cluster
-			clusterClient.tell(new ClusterClient.Send("/user/" + serviceName, new ClusterTestMessage(((String) msg).length(), getSelf()), true), ActorRef.noSender());
+			clusterClient.tell(new ClusterClient.Send("/user/" + serviceName,msg, true), ActorRef.noSender());
+
 		} else if (msg instanceof Integer) {
 			//mensaje simulando la respuesta desde algun actor conectado al cluster
 			System.out.println("OK =" + msg);
