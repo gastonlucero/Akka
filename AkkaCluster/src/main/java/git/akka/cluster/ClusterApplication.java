@@ -7,13 +7,13 @@ import com.typesafe.config.ConfigFactory;
 
 /**
  *
- * @author gaston
+ * @author gaston   
  */
 public class ClusterApplication {
 	
 	public static void main(String[] args) throws Exception {
 		startBackEndNode(Integer.valueOf(args[0]), "backend");
-//		Thread.sleep(10000);
+//		Thread.sleep(5000);
 //		startBackEndNode(2552, "backend");
 //		Thread.sleep(10000);
 //		startFrontEndNode(0, "frontend");
